@@ -123,6 +123,7 @@ namespace ProfesciptaTestMVC.Controllers
                             };
                             _context.Items.Add(itmExt);
                         }
+                        _context.SaveChanges();
                     }
                 }
                 return RedirectToAction("Index", "Home");
