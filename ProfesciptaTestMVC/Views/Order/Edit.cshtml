@@ -1,0 +1,128 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Edit";
+    var i = 0;
+}
+
+<h1>Add Order</h1>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="EditLogic" method="post">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <div class="form-group mt-8">
+                <label class="control-label">Order Number</label>
+                <input class="form-control" type="text" value="@Model.OrderNo" name="OrderNumber" />
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-8">
+                <label class="control-label">Order Date</label>
+                <input class="form-control" type="date" id="date_order" value="@Model.OrderDate" name="OrderDate" />
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <table class="mt-4">
+                    <tbody id="itemList">
+                        @foreach(var item in ViewBag.Item)
+                        {
+                            <tr class="gap-4">
+                                <td>
+                                    <input type="text" name="Items[@i].ItemName" value="@item.ItemName" class="form-control" placeholder="Item Name" />
+                                    <input type="hidden" name="Items[@i].Id" value="@item.Id" class="form-control" placeholder="Item Name" />
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].Quantity" value="@item.Quantity" class="form-control" placeholder="Quantity" />
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].Price" value="@item.Price" class="form-control" placeholder="Price" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger remove-row">Remove</button>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group mt-8 d-flex mt-4 gap-4">
+                <button class="btn btn-success mt-8" id="add_list_btn" type="button" onclick="">Add Item</button>
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="@Url.Action("Index", "Home")">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        $('#date_order').flatpickr();
+
+        $(document).ready(function () {
+            // Event handler untuk tombol add_list_btn
+            $('#add_list_btn').on('click', function (e) {
+                e.preventDefault();
+                var rowIndex = $('#itemList tr').length + 1;
+
+                var newRow = `
+                    <tr class="gap-4">
+                        <td>
+                            <input type="text" name="" class="form-control" placeholder="Item Name" />
+                        </td>
+                        <td>
+                            <input type="text" name="Items[${rowIndex - 1}].ItemName" class="form-control" placeholder="Item Name" />
+                        </td>
+                        <td>
+                            <input type="number" name="Items[${rowIndex - 1}].Quantity" class="form-control" placeholder="Quantity" />
+                        </td>
+                        <td>
+                            <input type="number" name="Items[${rowIndex - 1}].Price" class="form-control" placeholder="Price" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger remove-row">Cancel</button>
+                        </td>
+                    </tr>
+                `;
+
+                // Tambahkan baris baru ke dalam tabel
+                $('#itemList').append(newRow);
+
+                // Perbarui semua indeks setelah penambahan
+                updateRowIndexes();
+            });
+
+            // Event handler untuk tombol Remove
+            $('#itemList').on('click', '.remove-row', function () {
+                // Hapus baris terkait
+                $(this).closest('tr').remove();
+
+                // Perbarui semua indeks setelah penghapusan
+                updateRowIndexes();
+            });
+
+            // Fungsi untuk memperbarui indeks semua baris
+            function updateRowIndexes() {
+                $('#itemList tr').each(function (index) {
+                    // Perbarui indeks (nomor urut)
+                    $(this).find('td:first').text(index + 1);
+
+                    // Perbarui atribut name sesuai urutan
+                    $(this).find('input[name]').each(function () {
+                        var name = $(this).attr('name');
+                        var newName = name.replace(/\[\d+\]/, `[${index}]`);
+                        $(this).attr('name', newName);
+                    });
+                });
+            }
+        });
+    </script>
+
+}

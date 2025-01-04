@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Add";
+}
+
+<h1>Add Order</h1>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="AddLogic" method="post">
+            <div class="form-group mt-8">
+                <label class="control-label">Order Number</label>
+                <input class="form-control" type="text" name="OrderNumber" />
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-8">
+                <label class="control-label">Order Date</label>
+                <input class="form-control" type="date" id="date_order" name="OrderDate" />
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <table class="mt-4">
+                    <tbody id="itemList">
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group mt-8 d-flex gap-4 mt-8">
+                <button class="btn btn-success mt-8" id="add_list_btn" type="button" onclick="">Add Item</button>
+                <input type="button" data-bs-toggle="modal" data-bs-target="#submit_modal" value="Create" class="btn btn-primary" />
+            </div>
+            <div class="modal fade" id="submit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5 text-center" id="exampleModalLabel">Customer</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select id="" name="CustomerId" class="form-select">
+                                @foreach(var user in ViewBag.User)
+                                {
+                                    <option value="@user.Id">@user.Name</option>
+                                }
+                            </select>
+                            <div class="mt-4">
+                                <label>Address</label>
+                                <input type="text" name="Address" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success">Ya, Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="@Url.Action("Index", "Home")">Back to List</a>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        $('#date_order').flatpickr();
+
+        $(document).ready(function () {
+            // Event handler untuk tombol add_list_btn
+            $('#add_list_btn').on('click', function (e) {
+                e.preventDefault();
+                var rowIndex = $('#itemList tr').length + 1;
+
+                var newRow = `
+                    <tr class="gap-4">
+                        <td>
+                            <input type="text" name="" class="form-control" placeholder="Item Name" />
+                        </td>
+                        <td>
+                            <input type="text" name="Items[${rowIndex - 1}].ItemName" class="form-control" placeholder="Item Name" />
+                        </td>
+                        <td>
+                            <input type="number" name="Items[${rowIndex - 1}].Quantity" class="form-control" placeholder="Quantity" />
+                        </td>
+                        <td>
+                            <input type="number" name="Items[${rowIndex - 1}].Price" class="form-control" placeholder="Price" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger remove-row">Cancel</button>
+                        </td>
+                    </tr>
+                `;
+
+                // Tambahkan baris baru ke dalam tabel
+                $('#itemList').append(newRow);
+
+                // Perbarui semua indeks setelah penambahan
+                updateRowIndexes();
+            });
+
+            // Event handler untuk tombol Remove
+            $('#itemList').on('click', '.remove-row', function () {
+                // Hapus baris terkait
+                $(this).closest('tr').remove();
+
+                // Perbarui semua indeks setelah penghapusan
+                updateRowIndexes();
+            });
+
+            // Fungsi untuk memperbarui indeks semua baris
+            function updateRowIndexes() {
+                $('#itemList tr').each(function (index) {
+                    // Perbarui indeks (nomor urut)
+                    $(this).find('td:first').text(index + 1);
+
+                    // Perbarui atribut name sesuai urutan
+                    $(this).find('input[name]').each(function () {
+                        var name = $(this).attr('name');
+                        var newName = name.replace(/\[\d+\]/, `[${index}]`);
+                        $(this).attr('name', newName);
+                    });
+                });
+            }
+        });
+    </script>
+
+}

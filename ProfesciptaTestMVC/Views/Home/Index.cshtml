@@ -1,0 +1,88 @@
+﻿@model List<Order>
+@{
+    ViewData["Title"] = "Home Page";
+    var i = 1;
+}
+
+<div class="justify-content-between d-flex mt-4">
+    <div class="d-flex gap-4">
+        <a class="btn btn-danger" href="@Url.Action("Add", "Order")">
+            Add New Data
+        </a>
+        <form action="@Url.Action("ExportToExcel", "Order")" method="post">
+            <button class="btn btn-success" type="submit">
+                <i class="bi bi-floppy2"></i> Export To Excel
+            </button>
+        </form>
+    </div>
+    <button class="btn btn-warning" type="button" onclick="">
+        Hint
+    </button>
+</div>
+
+<div class="text-center">
+    <table class="table mt-4" id="list_order_table">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Action</th>
+                <th scope="col">Sales Order</th>
+                <th scope="col">Order Date</th>
+                <th scope="col">Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model){
+                <tr>
+                    <th scope="row">@i</th>
+                    <td class="d-block">
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#delete_modal" onclick="deleteOrder(@item.Id)"><i class="bi bi-trash"></i></button>
+                        <a class="btn btn-warning" href="@Url.Action("Edit", "Order")?id=@item.Id"><i class="bi bi-pencil-fill"></i></a>
+                    </td>
+                    <td>
+                        @item.OrderNo
+                    </td>
+                    <td>
+                        @item.OrderDate.ToString("dd MMMM yyyy")
+                    </td>
+                    <td>
+                        @item.Customer.Name
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="delete_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 text-center" id="exampleModalLabel">Yakin hapus Data?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Setelah klik hapus, maka seluruh data yang berkaitan juga akan hilang.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="frm_delete" action="#" method="post">
+                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $('#list_order_table').DataTable();
+        
+        function deleteOrder(id){
+            $('#frm_delete').attr('action', '@Url.Action("Delete", "Order")?id=' + id);
+        }
+
+    </script>
+}
