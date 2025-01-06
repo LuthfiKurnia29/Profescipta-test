@@ -70,7 +70,9 @@ namespace ProfesciptaTestMVC.Controllers
         public IActionResult Edit(long id)
         {
             var order = _context.Orders.Where(x => x.Id == id).FirstOrDefault();
-            if(order != null)
+            var user = _context.Customers.ToList();
+            ViewBag.User = user;
+            if (order != null)
             {
                 var itemOrder = _context.Items.Where(x => x.OrderId == id).ToList();
                 Debug.WriteLine(itemOrder);
@@ -102,15 +104,20 @@ namespace ProfesciptaTestMVC.Controllers
                         var existsItem = _context.Items.Where(x => x.Id == item.Id).FirstOrDefault();
                         if(existsItem != null)
                         {
-                            var itmExt = new Item()
+                            /*var itmExt = new Item()
                             {
                                 Id = existsItem.Id,
                                 ItemName = item.ItemName,
-                                OrderId = existsItem.OrderId,
+                                OrderId = order.Id,
                                 Price = item.Price,
-                                Quantity = item.Quantity,
-                            };
-                            _context.Items.Update(itmExt);
+                                Quantity = item.Quantity
+                            };*/
+                            existsItem.ItemName = item.ItemName;
+                            existsItem.OrderId = order.Id;
+                            existsItem.Price = item.Price;
+                            existsItem.Quantity = item.Quantity;
+                            _context.Items.Update(existsItem);
+                            _context.SaveChanges();
                         }
                         else
                         {
@@ -122,8 +129,9 @@ namespace ProfesciptaTestMVC.Controllers
                                 Quantity = item.Quantity,
                             };
                             _context.Items.Add(itmExt);
+                            _context.SaveChanges();
                         }
-                        _context.SaveChanges();
+                        
                     }
                 }
                 return RedirectToAction("Index", "Home");
